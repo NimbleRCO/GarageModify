@@ -2,7 +2,7 @@ import json
 import os
 
 class Car:
-    def __init__(self, brand, model, headlights, doors, engine, color="", tint=0, year=0, engine_type="", fuel_type="", transmission="", price=0):
+    def __init__(self, brand, model, headlights, doors, engine, color="", tint=0, year=0, engine_type="", fuel_type="", transmission="", price=0, attack=0):
         self.brand = brand
         self.model = model
         self.color = color
@@ -15,6 +15,7 @@ class Car:
         self.headlights = headlights  # Состояние фар (True/False)
         self.doors = doors  # Состояние дверей (True/False)
         self.engine = engine  # Состояние двигателя (True/False)
+        self.attack = attack
 
     def to_dict(self):
         return self.__dict__
@@ -114,7 +115,7 @@ class Garage:
         print(f"- Фары: {'Включены' if car.headlights else 'Выключены'}")
         print(f"- Двери: {'Открыты' if car.doors else 'Закрыты'}")
         print(f"- Двигатель: {'Заведён' if car.engine else 'Не заведён'}")
-
+        print(f"- Количество ДТП: {car.attack}")
     def additional_characteristics(self):
         while True:
             print("\n--- Доп. характеристики ---")
@@ -507,7 +508,18 @@ class Garage:
                 else:
                     print("Неверный ввод. Попробуйте еще раз.")
 
-        new_car = Car(brand, model, headlights, doors, engine, color, tint, year, engine_type, fuel_type, transmission, price)
+            #Сколько раз машина была в дтп
+            while True:
+                attack = input("Введите сколько раз машина попадала в ДТП: ")
+                try:
+                    if 0 <= int(attack) <= 100:
+                        break
+                    else:
+                        print('Вы что-то напутали')
+                except ValuError():
+                    print('Вы ввели не числовой тип данных')
+
+        new_car = Car(brand, model, headlights, doors, engine, color, tint, year, engine_type, fuel_type, transmission, price,attack)
         self.cars.append(new_car)
         self.save_cars()
         print("Машина успешно добавлена.")
@@ -651,6 +663,21 @@ class Garage:
                             break
                         else:
                             print("Неверный ввод. Попробуйте еще раз.")
+
+                    #Редактирование количества ДТП
+                    while True:
+                        attack = input("Сколько раз машина была в ДТП (0-100): ")
+                        if not attack:
+                            break
+                        try:
+                            attack = int(attack)
+                            if 0 <= attack <= 100:
+                                car.attack = attack
+                                break
+                            else:
+                                print('Вы не соблюли диапазон')
+                        except ValueError:
+                            print('Введите нужный формат данных')
 
                     self.save_cars()
                     print("Машина успешно отредактирована.")
@@ -807,6 +834,15 @@ class Garage:
             else:
                 print("Неверный ввод. Попробуйте еще раз.")
 
+        # Количество ДТП
+        while True:
+            attack_poisk = input('Введите количество дтп 0-100: ')
+            if not attack_poisk or attack_poisk.isdigit() or not (0 <= int(attack_poisk) <= 100):
+                search_params['attack'] = attack_poisk
+                break
+            else:
+                print('Неверный формат ввода')
+
         # Поиск машин по параметрам
         results = []
         for car in self.cars:
@@ -826,9 +862,9 @@ class Garage:
             print("\nНайденные машины:")
             for i, car in enumerate(results, 1):
                 print(
-                    f"{i}. {car.year} | {car.brand} | {car.model} | {car.color} | {car.engine_type} | {car.fuel_type} | {car.transmission}")
+                        f"{i}. {car.year} | {car.brand} | {car.model} | {car.color} | {car.engine_type} | {car.fuel_type} | {car.transmission} | {car.attack}")
         else:
-            print("Машины не найдены.")
+            print('Не нашел подходящих машин')
 
 
 def main():
